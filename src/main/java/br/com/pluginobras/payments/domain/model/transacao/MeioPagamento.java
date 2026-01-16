@@ -1,4 +1,7 @@
 package br.com.pluginobras.payments.domain.model.transacao;
 
-public class MeioPagamento {
+public enum MeioPagamento {
+    PIX,
+    CARTAO,
+    BOLETO
 }
