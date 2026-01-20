@@ -6,11 +6,13 @@ import br.com.pluginobras.payments.domain.model.escrow.ContaEscrow;
 import br.com.pluginobras.payments.domain.model.liberacao.LiberacaoPrestador;
 import br.com.pluginobras.payments.domain.model.pagamento.Pagamento;
 import br.com.pluginobras.payments.domain.model.pagamento.StatusPagamento;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Data
 public class TransacaoServico {
 
     private UUID id;
