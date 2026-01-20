@@ -107,6 +107,19 @@ public class TransacaoServico {
         this.dataPagamento = LocalDateTime.now();
     }
 
+    public ContaEscrow registrarPagamento(Pagamento pagamento) {
+        validarStatus(StatusTransacao.CRIADA);
+
+        this.statusTransacao = StatusTransacao.EM_ESCROW;
+        this.dataPagamento = LocalDateTime.now();
+
+        return ContaEscrow.criar(
+                this.transacaoId,
+                this.prestadorId,
+                pagamento.getValorLiquido()
+        );
+    }
+
     public ContaEscrow contaEscrow() {
         validarStatus(StatusTransacao.PAGA);
 
@@ -164,6 +177,13 @@ public class TransacaoServico {
         } else {
             this.statusTransacao = StatusTransacao.EM_ESCROW;
         }
+    }
+
+    public void reconstruirEstado(StatusTransacao statusTransacao, LocalDateTime dataCriacao, LocalDateTime dataPagamento, LocalDateTime dataLiberacao) {
+        this.statusTransacao = statusTransacao;
+        this.dataCriacao = dataCriacao;
+        this.dataPagamento = dataPagamento;
+        this.dataLiberacao = dataLiberacao;
     }
 
     private void calcularValores() {

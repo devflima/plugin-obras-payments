@@ -2,7 +2,7 @@ package br.com.pluginobras.payments.interfaces.rest.controller;
 
 import br.com.pluginobras.payments.domain.model.transacao.TransacaoServico;
 import br.com.pluginobras.payments.infrastructure.persistence.entity.TransacaoEntity;
-import br.com.pluginobras.payments.infrastructure.persistence.repository.TransacaoJpaRepository;
+import br.com.pluginobras.payments.infrastructure.persistence.repository.TransacaoRepository;
 import br.com.pluginobras.payments.interfaces.rest.dto.CriarTransacaoRequest;
 import br.com.pluginobras.payments.interfaces.rest.dto.CriarTransacaoResponse;
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransacaoController {
 
     @Autowired
-    private TransacaoJpaRepository repository;
+    private TransacaoRepository repository;
 
     @PostMapping
     public ResponseEntity<?> criar(@Valid @RequestBody CriarTransacaoRequest request) {

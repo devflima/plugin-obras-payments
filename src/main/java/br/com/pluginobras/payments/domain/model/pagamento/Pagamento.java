@@ -2,11 +2,13 @@ package br.com.pluginobras.payments.domain.model.pagamento;
 
 import br.com.pluginobras.payments.domain.exception.RegraNegocioException;
 import br.com.pluginobras.payments.domain.model.transacao.MeioPagamento;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Data
 public class Pagamento {
 
     private UUID id;

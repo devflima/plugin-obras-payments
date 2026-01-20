@@ -1,10 +1,12 @@
 package br.com.pluginobras.payments.domain.model.escrow;
 
 import br.com.pluginobras.payments.domain.exception.RegraNegocioException;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
+@Data
 public class ContaEscrow {
 
     private UUID id;
@@ -19,17 +21,21 @@ public class ContaEscrow {
     public ContaEscrow(
             String transacaoId,
             String prestadorId,
-            BigDecimal valorInicial
+            BigDecimal valorLiquido
     ) {
-        if(valorInicial.compareTo(BigDecimal.ZERO) <=0) {
+        if(valorLiquido.compareTo(BigDecimal.ZERO) <=0) {
             throw new RegraNegocioException("Valor inicial do escrow deve ser maior que zero.");
         }
 
         this.id = UUID.randomUUID();
         this.transacaoId = transacaoId;
         this.prestadorId = prestadorId;
-        this.saldoRetido = valorInicial;
+        this.saldoRetido = valorLiquido;
         this.statusEscrow = StatusEscrow.ATIVO;
+    }
+
+    public static ContaEscrow criar(String transacaoId, String prestadorId, BigDecimal valorLiquido) {
+        return new ContaEscrow(transacaoId, prestadorId, valorLiquido);
     }
 
     public BigDecimal getSaldoRetido() {

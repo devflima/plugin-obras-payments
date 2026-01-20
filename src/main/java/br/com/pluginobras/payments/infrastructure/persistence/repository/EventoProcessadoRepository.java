@@ -1,11 +1,9 @@
 package br.com.pluginobras.payments.infrastructure.persistence.repository;
 
-import br.com.pluginobras.payments.infrastructure.persistence.entity.TransacaoEntity;
+import br.com.pluginobras.payments.infrastructure.persistence.entity.EventoProcessadoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
-
 @Repository
-public interface TransacaoJpaRepository extends JpaRepository<TransacaoEntity, UUID> {
+public interface EventoProcessadoRepository extends JpaRepository<EventoProcessadoEntity, String> {
 }

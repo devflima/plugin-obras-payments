@@ -1,5 +1,6 @@
 package br.com.pluginobras.payments.infrastructure.persistence.entity;
 
+import br.com.pluginobras.payments.domain.model.transacao.StatusTransacao;
 import br.com.pluginobras.payments.domain.model.transacao.TransacaoServico;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,6 +58,26 @@ public class TransacaoEntity {
         e.dataLiberacao = domain.getDataLiberacao();
 
         return e;
+    }
+
+    public TransacaoServico toDomain() {
+        TransacaoServico t = new TransacaoServico(
+                this.transacaoId,
+                this.clienteId,
+                this.prestadorId,
+                this.valorBase,
+                this.taxaCliente,
+                this.taxaPrestador
+        );
+
+        t.reconstruirEstado(
+                StatusTransacao.valueOf(this.statusTransacao),
+                this.dataCriacao,
+                this.dataPagamento,
+                this.dataLiberacao
+        );
+
+        return t;
     }
 
 }
