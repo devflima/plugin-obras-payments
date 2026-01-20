@@ -74,9 +74,7 @@ public class TransacaoServico {
         this.taxaCliente = taxaCliente;
         this.taxaPrestador = taxaPrestador;
 
-        this.valorPagoCliente = valorBase.add(taxaCliente);
-        this.valorLiquidoPrestador = valorBase.subtract(taxaPrestador);
-        this.receitaPlataforma = taxaCliente.add(taxaPrestador);
+        calcularValores();
 
         this.statusTransacao = StatusTransacao.CRIADA;
         this.dataCriacao = LocalDateTime.now();
@@ -166,6 +164,12 @@ public class TransacaoServico {
         } else {
             this.statusTransacao = StatusTransacao.EM_ESCROW;
         }
+    }
+
+    private void calcularValores() {
+        this.valorPagoCliente = valorBase.add(taxaCliente);
+        this.valorLiquidoPrestador = valorBase.subtract(taxaPrestador);
+        this.receitaPlataforma = taxaCliente.add(taxaPrestador);
     }
 
     private void validarStatus(StatusTransacao statusTransacao) {
