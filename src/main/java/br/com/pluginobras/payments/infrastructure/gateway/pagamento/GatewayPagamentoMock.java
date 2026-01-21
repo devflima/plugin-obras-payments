@@ -1,9 +1,11 @@
 package br.com.pluginobras.payments.infrastructure.gateway.pagamento;
 
 import br.com.pluginobras.payments.domain.model.transacao.MeioPagamento;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+@Component
 public class GatewayPagamentoMock implements GatewayPagamentoClient {
 
     @Override

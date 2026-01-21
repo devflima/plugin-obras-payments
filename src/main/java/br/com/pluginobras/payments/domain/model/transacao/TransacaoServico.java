@@ -32,7 +32,25 @@ public class TransacaoServico {
     private LocalDateTime dataPagamento;
     private LocalDateTime dataLiberacao;
 
-    protected TransacaoServico() {}
+    public TransacaoServico(
+            UUID id,
+            String transacaoId,
+            String clienteId,
+            String prestadorId,
+            BigDecimal valorBase,
+            BigDecimal taxaCliente,
+            BigDecimal taxaPrestador
+    ) {
+        this.id = id;
+        this.transacaoId = transacaoId;
+        this.clienteId = clienteId;
+        this.prestadorId = prestadorId;
+        this.valorBase = valorBase;
+        this.taxaCliente = taxaCliente;
+        this.taxaPrestador = taxaPrestador;
+
+        calcularValores();
+    }
 
     public TransacaoServico(
             String transacaoId,

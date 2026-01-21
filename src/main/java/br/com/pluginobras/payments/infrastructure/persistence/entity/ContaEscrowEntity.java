@@ -2,6 +2,7 @@ package br.com.pluginobras.payments.infrastructure.persistence.entity;
 
 import br.com.pluginobras.payments.domain.model.escrow.ContaEscrow;
 import br.com.pluginobras.payments.domain.model.escrow.StatusEscrow;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -20,6 +21,7 @@ public class ContaEscrowEntity {
     private String prestadorId;
 
     private BigDecimal saldoRetido;
+
     private String statusEscrow;
 
     protected ContaEscrowEntity() {}
@@ -34,6 +36,19 @@ public class ContaEscrowEntity {
         c.statusEscrow = domain.getStatusEscrow().name();
 
         return c;
+    }
+
+    public ContaEscrow toDomain() {
+        ContaEscrow escrow = new ContaEscrow(
+                this.id,
+                this.transacaoId,
+                this.prestadorId,
+                this.saldoRetido
+        );
+
+        escrow.reconstruirEstado(StatusEscrow.valueOf(this.statusEscrow));
+
+        return escrow;
     }
 
 }

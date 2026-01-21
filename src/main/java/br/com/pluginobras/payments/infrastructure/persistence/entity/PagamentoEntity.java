@@ -1,6 +1,7 @@
 package br.com.pluginobras.payments.infrastructure.persistence.entity;
 
 import br.com.pluginobras.payments.domain.model.pagamento.Pagamento;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -21,7 +22,9 @@ public class PagamentoEntity {
     private BigDecimal valorBruto;
     private BigDecimal taxaGateway;
     private BigDecimal valorLiquido;
+
     private String statusPagamento;
+
     private LocalDateTime dataEvento;
 
     protected PagamentoEntity() {}

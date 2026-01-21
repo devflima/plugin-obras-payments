@@ -52,8 +52,13 @@ public class WebhookPagamentoController {
             return ResponseEntity.ok().build();
         }
 
-        TransacaoEntity entity = transacaoRepository.findById(UUID.fromString(request.getTransacaoId()))
+        TransacaoEntity entity = transacaoRepository.findByTransacaoId(request.getTransacaoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
+
+        if(escrowRepository.findByTransacaoId(request.getTransacaoId()).isPresent()) {
+            eventoRepository.save(new EventoProcessadoEntity(request.getIdEvento(), LocalDateTime.now()));
+            return ResponseEntity.ok().build();
+        }
 
         TransacaoServico transacao = entity.toDomain();
 

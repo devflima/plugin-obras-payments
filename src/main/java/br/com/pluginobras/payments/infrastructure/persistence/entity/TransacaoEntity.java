@@ -30,7 +30,6 @@ public class TransacaoEntity {
     private BigDecimal valorLiquidoPrestador;
     private BigDecimal receitaPlataforma;
 
-    @Column(name = "status")
     private String statusTransacao;
 
     private LocalDateTime dataCriacao;
@@ -62,6 +61,7 @@ public class TransacaoEntity {
 
     public TransacaoServico toDomain() {
         TransacaoServico t = new TransacaoServico(
+                this.id,
                 this.transacaoId,
                 this.clienteId,
                 this.prestadorId,

@@ -16,7 +16,17 @@ public class ContaEscrow {
     private BigDecimal saldoRetido;
     private StatusEscrow statusEscrow;
 
-    protected ContaEscrow() {}
+    public ContaEscrow(
+            UUID id,
+            String transacaoId,
+            String prestadorId,
+            BigDecimal valorLiquido
+    ) {
+        this.id = id;
+        this.transacaoId = transacaoId;
+        this.prestadorId = prestadorId;
+        this.saldoRetido = valorLiquido;
+    }
 
     public ContaEscrow(
             String transacaoId,
@@ -36,6 +46,10 @@ public class ContaEscrow {
 
     public static ContaEscrow criar(String transacaoId, String prestadorId, BigDecimal valorLiquido) {
         return new ContaEscrow(transacaoId, prestadorId, valorLiquido);
+    }
+
+    public void reconstruirEstado(StatusEscrow statusEscrow) {
+        this.statusEscrow = statusEscrow;
     }
 
     public BigDecimal getSaldoRetido() {

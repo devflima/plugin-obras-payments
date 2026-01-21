@@ -4,8 +4,10 @@ import br.com.pluginobras.payments.infrastructure.persistence.entity.TransacaoEn
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface TransacaoRepository extends JpaRepository<TransacaoEntity, UUID> {
+    Optional<TransacaoEntity> findByTransacaoId(String transacaoId);
 }
