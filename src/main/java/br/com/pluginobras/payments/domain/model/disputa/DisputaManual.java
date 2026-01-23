@@ -18,7 +18,17 @@ public class DisputaManual {
     private LocalDateTime dataResolucao;
     private StatusDisputa statusDisputa;
 
-    protected DisputaManual() {}
+    public DisputaManual(
+            UUID id,
+            String transacaoId,
+            BigDecimal valorDevolvidoCliente,
+            String motivo
+    ) {
+        this.id = id;
+        this.transacaoId = transacaoId;
+        this.valorDevolvidoCliente = valorDevolvidoCliente;
+        this.motivo = motivo;
+    }
 
     public DisputaManual(
             String transacaoId,
@@ -48,6 +58,12 @@ public class DisputaManual {
 
     public BigDecimal getValorDevolvidoCliente() {
         return valorDevolvidoCliente;
+    }
+
+    public void recontruirEstado(StatusDisputa statusDisputa, LocalDateTime dataAbertura, LocalDateTime dataResolucao) {
+        this.statusDisputa = statusDisputa;
+        this.dataAbertura = dataAbertura;
+        this.dataResolucao = dataResolucao;
     }
 
 }

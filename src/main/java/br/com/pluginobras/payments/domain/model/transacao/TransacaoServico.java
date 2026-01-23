@@ -184,6 +184,10 @@ public class TransacaoServico {
 
         BigDecimal devolucao = disputaManual.getValorDevolvidoCliente();
 
+        if(devolucao.compareTo(contaEscrow.getSaldoRetido()) > 0) {
+            throw new RegraNegocioException("Valor devolvido maior que saldo em escrow.");
+        }
+
         if(devolucao.compareTo(BigDecimal.ZERO) > 0) {
             contaEscrow.debitar(devolucao);
         }

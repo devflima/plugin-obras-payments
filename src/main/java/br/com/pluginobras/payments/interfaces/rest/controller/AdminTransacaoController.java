@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -58,10 +59,12 @@ public class AdminTransacaoController {
         transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
 
         return ResponseEntity.ok().build();
+
     }
 
     @PostMapping("/{transacaoId}/disputa")
     public ResponseEntity<Void> abrirDisputa(@PathVariable String transacaoId, @RequestBody @Valid AbrirDisputaRequest request) {
+
         TransacaoEntity entity = transacaoRepository.findByTransacaoId(transacaoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
 
@@ -69,6 +72,33 @@ public class AdminTransacaoController {
 
         DisputaManual disputa = transacao.abrirDisputa(request.getValorDevolvidoCliente(), request.getMotivo());
 
+        disputaRepository.save(DisputaEntity.fromDomain(disputa));
+        transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
+
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PostMapping("/{transacaoId}/disputa/resolver")
+    public ResponseEntity<Void> resolverDisputa(@PathVariable String transacaoId) {
+
+        TransacaoEntity entity = transacaoRepository.findByTransacaoId(transacaoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
+
+        TransacaoServico transacao = entity.toDomain();
+
+        DisputaEntity disputaEntity = disputaRepository.findByTransacaoId(transacaoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disputa não encontrada"));
+
+        ContaEscrowEntity escrowEntity = escrowRepository.findByTransacaoId(transacaoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Escrow não encontrado"));
+
+        DisputaManual disputa = disputaEntity.toDomain();
+        ContaEscrow escrow = escrowEntity.toDomain();
+
+        transacao.resolverDisputa(escrow, disputa);
+
+        escrowRepository.save(ContaEscrowEntity.fromDomain(escrow));
         disputaRepository.save(DisputaEntity.fromDomain(disputa));
         transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
 

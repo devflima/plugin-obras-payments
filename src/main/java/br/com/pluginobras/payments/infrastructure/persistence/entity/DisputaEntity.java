@@ -38,4 +38,21 @@ public class DisputaEntity {
         return d;
     }
 
+    public DisputaManual toDomain() {
+        DisputaManual d = new DisputaManual(
+                this.id,
+                this.transacaoId,
+                this.valorDevolvidoCliente,
+                this.motivo
+        );
+
+        d.recontruirEstado(
+                StatusDisputa.valueOf(this.statusDisputa.name()),
+                this.dataAbertura,
+                this.dataResolucao
+        );
+
+        return d;
+    }
+
 }
