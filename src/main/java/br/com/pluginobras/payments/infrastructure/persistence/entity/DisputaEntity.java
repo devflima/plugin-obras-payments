@@ -2,13 +2,17 @@ package br.com.pluginobras.payments.infrastructure.persistence.entity;
 
 import br.com.pluginobras.payments.domain.model.disputa.DisputaManual;
 import br.com.pluginobras.payments.domain.model.disputa.StatusDisputa;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Entity
+@Table(name = "disputa")
 @Data
 public class DisputaEntity {
 

@@ -13,11 +13,16 @@ import br.com.pluginobras.payments.infrastructure.persistence.repository.ContaEs
 import br.com.pluginobras.payments.infrastructure.persistence.repository.DisputaRepository;
 import br.com.pluginobras.payments.infrastructure.persistence.repository.LiberacaoRepository;
 import br.com.pluginobras.payments.infrastructure.persistence.repository.TransacaoRepository;
+import br.com.pluginobras.payments.infrastructure.persistence.specification.TransacaoSpecification;
 import br.com.pluginobras.payments.interfaces.rest.dto.AbrirDisputaRequest;
 import br.com.pluginobras.payments.interfaces.rest.dto.TransacaoDetalheResponse;
 import br.com.pluginobras.payments.interfaces.rest.dto.TransacaoResumoResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -109,14 +114,41 @@ public class AdminTransacaoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransacaoResumoResponse>> listar() {
-        List<TransacaoResumoResponse> response = transacaoRepository.findAll()
-                .stream()
-                .map(TransacaoResumoResponse::fromEntity)
-                .toList();
+    public ResponseEntity<Page<TransacaoResumoResponse>> listar(
+            @RequestParam(required = false) StatusTransacao status,
+            @RequestParam(required = false) String clienteId,
+            @RequestParam(required = false) String prestadorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "dataCriacao") String sort,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(
+                        direction.equalsIgnoreCase("asc")
+                                ? Sort.Direction.ASC
+                                : Sort.Direction.DESC,
+                        sort
+                )
+        );
+
+        Page<TransacaoEntity> result =
+                transacaoRepository.findAll(
+                        TransacaoSpecification.filtrar(
+                                status, clienteId, prestadorId
+                        ),
+                        pageable
+                );
+
+        Page<TransacaoResumoResponse> response =
+                result.map(TransacaoResumoResponse::fromEntity);
 
         return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/{transacaoId}")
     public ResponseEntity<TransacaoDetalheResponse> detalhar(@PathVariable String transacaoId) {
@@ -124,22 +156,6 @@ public class AdminTransacaoController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
 
         return ResponseEntity.ok(TransacaoDetalheResponse.fromEntity(entity));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<TransacaoResumoResponse>> listar(
-            @RequestParam(required = false) StatusTransacao statusTransacao
-    ) {
-        List<TransacaoEntity> entities =
-                statusTransacao == null
-                        ? transacaoRepository.findAll()
-                        : transacaoRepository.findByStatusTransacao(statusTransacao.name());
-
-        List<TransacaoResumoResponse> response = entities.stream()
-                .map(TransacaoResumoResponse::fromEntity)
-                .toList();
-
-        return ResponseEntity.ok(response);
     }
 
 }
