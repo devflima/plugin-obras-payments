@@ -1,11 +1,13 @@
 package br.com.pluginobras.payments.domain.model.disputa;
 
 import br.com.pluginobras.payments.domain.exception.RegraNegocioException;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Data
 public class DisputaManual {
 
     private UUID id;

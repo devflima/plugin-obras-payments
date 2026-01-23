@@ -1,21 +1,23 @@
 package br.com.pluginobras.payments.interfaces.rest.controller;
 
+import br.com.pluginobras.payments.domain.model.disputa.DisputaManual;
 import br.com.pluginobras.payments.domain.model.escrow.ContaEscrow;
 import br.com.pluginobras.payments.domain.model.liberacao.LiberacaoPrestador;
 import br.com.pluginobras.payments.domain.model.transacao.TransacaoServico;
 import br.com.pluginobras.payments.infrastructure.persistence.entity.ContaEscrowEntity;
+import br.com.pluginobras.payments.infrastructure.persistence.entity.DisputaEntity;
 import br.com.pluginobras.payments.infrastructure.persistence.entity.LiberacaoEntity;
 import br.com.pluginobras.payments.infrastructure.persistence.entity.TransacaoEntity;
 import br.com.pluginobras.payments.infrastructure.persistence.repository.ContaEscrowRepository;
+import br.com.pluginobras.payments.infrastructure.persistence.repository.DisputaRepository;
 import br.com.pluginobras.payments.infrastructure.persistence.repository.LiberacaoRepository;
 import br.com.pluginobras.payments.infrastructure.persistence.repository.TransacaoRepository;
+import br.com.pluginobras.payments.interfaces.rest.dto.AbrirDisputaRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
@@ -32,6 +34,9 @@ public class AdminTransacaoController {
 
     @Autowired
     private LiberacaoRepository liberacaoRepository;
+
+    @Autowired
+    private DisputaRepository disputaRepository;
 
     @PostMapping("/{transacaoId}/liberar")
     public ResponseEntity<Void> liberar(@PathVariable String transacaoId) {
@@ -50,6 +55,21 @@ public class AdminTransacaoController {
 
         escrowRepository.save(ContaEscrowEntity.fromDomain(escrow));
         liberacaoRepository.save(LiberacaoEntity.fromDomain(liberacao));
+        transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{transacaoId}/disputa")
+    public ResponseEntity<Void> abrirDisputa(@PathVariable String transacaoId, @RequestBody @Valid AbrirDisputaRequest request) {
+        TransacaoEntity entity = transacaoRepository.findByTransacaoId(transacaoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
+
+        TransacaoServico transacao = entity.toDomain();
+
+        DisputaManual disputa = transacao.abrirDisputa(request.getValorDevolvidoCliente(), request.getMotivo());
+
+        disputaRepository.save(DisputaEntity.fromDomain(disputa));
         transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
 
         return ResponseEntity.ok().build();
