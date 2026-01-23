@@ -3,6 +3,7 @@ package br.com.pluginobras.payments.interfaces.rest.controller;
 import br.com.pluginobras.payments.domain.model.disputa.DisputaManual;
 import br.com.pluginobras.payments.domain.model.escrow.ContaEscrow;
 import br.com.pluginobras.payments.domain.model.liberacao.LiberacaoPrestador;
+import br.com.pluginobras.payments.domain.model.transacao.StatusTransacao;
 import br.com.pluginobras.payments.domain.model.transacao.TransacaoServico;
 import br.com.pluginobras.payments.infrastructure.persistence.entity.ContaEscrowEntity;
 import br.com.pluginobras.payments.infrastructure.persistence.entity.DisputaEntity;
@@ -13,6 +14,8 @@ import br.com.pluginobras.payments.infrastructure.persistence.repository.Disputa
 import br.com.pluginobras.payments.infrastructure.persistence.repository.LiberacaoRepository;
 import br.com.pluginobras.payments.infrastructure.persistence.repository.TransacaoRepository;
 import br.com.pluginobras.payments.interfaces.rest.dto.AbrirDisputaRequest;
+import br.com.pluginobras.payments.interfaces.rest.dto.TransacaoDetalheResponse;
+import br.com.pluginobras.payments.interfaces.rest.dto.TransacaoResumoResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/admin/transacoes")
@@ -103,6 +106,40 @@ public class AdminTransacaoController {
         transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TransacaoResumoResponse>> listar() {
+        List<TransacaoResumoResponse> response = transacaoRepository.findAll()
+                .stream()
+                .map(TransacaoResumoResponse::fromEntity)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{transacaoId}")
+    public ResponseEntity<TransacaoDetalheResponse> detalhar(@PathVariable String transacaoId) {
+        TransacaoEntity entity = transacaoRepository.findByTransacaoId(transacaoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
+
+        return ResponseEntity.ok(TransacaoDetalheResponse.fromEntity(entity));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TransacaoResumoResponse>> listar(
+            @RequestParam(required = false) StatusTransacao statusTransacao
+    ) {
+        List<TransacaoEntity> entities =
+                statusTransacao == null
+                        ? transacaoRepository.findAll()
+                        : transacaoRepository.findByStatusTransacao(statusTransacao.name());
+
+        List<TransacaoResumoResponse> response = entities.stream()
+                .map(TransacaoResumoResponse::fromEntity)
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
 }
