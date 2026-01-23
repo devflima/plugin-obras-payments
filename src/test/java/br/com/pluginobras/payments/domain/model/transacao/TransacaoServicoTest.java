@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TransacaoServicoTest {
 
     @Test
-    void deve_calcular_valores_corretamente() {
+    void deveCalcularValoresCorretamente() {
         TransacaoServico t = new TransacaoServico(
                 "T-1",
                 "C-1",

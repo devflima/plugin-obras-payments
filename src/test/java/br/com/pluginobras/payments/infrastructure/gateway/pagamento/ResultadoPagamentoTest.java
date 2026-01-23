@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ResultadoPagamentoTest {
 
     @Test
-    void deve_simular_pix_sem_taxa() {
+    void deveSimularPixSemTaxa() {
         GatewayPagamentoClient g = new GatewayPagamentoMock();
         ResultadoPagamento r = g.processar(MeioPagamento.PIX, new BigDecimal("100"));
 
