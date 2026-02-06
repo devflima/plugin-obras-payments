@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("admin/escrow")
+@RequestMapping("/admin/escrow")
 public class AdminEscrowController {
 
     @Autowired

@@ -25,7 +25,6 @@ public class TransacaoController {
     public ResponseEntity<?> criar(@Valid @RequestBody CriarTransacaoRequest request) {
 
         TransacaoServico transacao = new TransacaoServico(
-                request.getTransacaoId(),
                 request.getClienteId(),
                 request.getPrestadorId(),
                 request.getValorBase(),
@@ -37,7 +36,7 @@ public class TransacaoController {
         repository.save(entity);
 
         CriarTransacaoResponse response = new CriarTransacaoResponse(
-                transacao.getTransacaoId(),
+                transacao.getId(),
                 transacao.getStatusTransacao().name(),
                 transacao.getValorPagoCliente()
         );

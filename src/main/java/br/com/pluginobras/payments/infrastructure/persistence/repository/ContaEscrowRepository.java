@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface ContaEscrowRepository extends JpaRepository<ContaEscrowEntity, UUID> {
-    Optional<ContaEscrowEntity> findByTransacaoId(String transacaoId);
+    Optional<ContaEscrowEntity> findByTransacaoId(UUID transacaoId);
 
     @Query("""
         select e.prestadorId as prestadorId,

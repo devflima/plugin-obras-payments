@@ -2,7 +2,6 @@ package br.com.pluginobras.payments.infrastructure.persistence.entity;
 
 import br.com.pluginobras.payments.domain.model.transacao.StatusTransacao;
 import br.com.pluginobras.payments.domain.model.transacao.TransacaoServico;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -19,8 +18,6 @@ public class TransacaoEntity {
 
     @Id
     private UUID id;
-
-    private String transacaoId;
     private String clienteId;
     private String prestadorId;
 
@@ -44,7 +41,6 @@ public class TransacaoEntity {
         TransacaoEntity e = new TransacaoEntity();
 
         e.id = domain.getId();
-        e.transacaoId = domain.getTransacaoId();
         e.clienteId = domain.getClienteId();
         e.prestadorId = domain.getPrestadorId();
         e.valorBase = domain.getValorBase();
@@ -64,7 +60,6 @@ public class TransacaoEntity {
     public TransacaoServico toDomain() {
         TransacaoServico t = new TransacaoServico(
                 this.id,
-                this.transacaoId,
                 this.clienteId,
                 this.prestadorId,
                 this.valorBase,
@@ -80,6 +75,23 @@ public class TransacaoEntity {
         );
 
         return t;
+    }
+
+    public void updateToDomain(TransacaoServico domain) {
+        this.statusTransacao = StatusTransacao.EM_ESCROW.name();
+        this.dataPagamento = LocalDateTime.now();
+        this.valorPagoCliente = domain.getValorPagoCliente();
+        this.valorLiquidoPrestador = domain.getValorLiquidoPrestador();
+        this.receitaPlataforma = domain.getReceitaPlataforma();
+    }
+
+    public void applyStateFromDomain(TransacaoServico domain) {
+        this.statusTransacao = domain.getStatusTransacao().name();
+        this.valorBase = domain.getValorBase();
+        this.valorPagoCliente = domain.getValorPagoCliente();
+        this.valorLiquidoPrestador = domain.getValorLiquidoPrestador();
+        this.receitaPlataforma = domain.getReceitaPlataforma();
+        this.dataLiberacao = domain.getDataLiberacao();
     }
 
 }

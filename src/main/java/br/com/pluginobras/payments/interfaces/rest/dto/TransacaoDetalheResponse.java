@@ -8,13 +8,14 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransacaoDetalheResponse {
 
-    private String transacaoId;
+    private UUID transacaoId;
     private String clienteId;
     private String prestadorId;
 
@@ -32,7 +33,7 @@ public class TransacaoDetalheResponse {
 
     public static TransacaoDetalheResponse fromEntity(TransacaoEntity entity) {
         TransacaoDetalheResponse dto = new TransacaoDetalheResponse();
-        dto.transacaoId = entity.getTransacaoId();
+        dto.transacaoId = entity.getId();
         dto.clienteId = entity.getClienteId();
         dto.prestadorId = entity.getPrestadorId();
 

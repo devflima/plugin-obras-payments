@@ -9,27 +9,14 @@ import java.util.UUID;
 @Data
 public class ContaEscrow {
 
-    private UUID id;
-    private String transacaoId;
+    private UUID transacaoId;
     private String prestadorId;
 
     private BigDecimal saldoRetido;
     private StatusEscrow statusEscrow;
 
     public ContaEscrow(
-            UUID id,
-            String transacaoId,
-            String prestadorId,
-            BigDecimal valorLiquido
-    ) {
-        this.id = id;
-        this.transacaoId = transacaoId;
-        this.prestadorId = prestadorId;
-        this.saldoRetido = valorLiquido;
-    }
-
-    public ContaEscrow(
-            String transacaoId,
+            UUID transacaoId,
             String prestadorId,
             BigDecimal valorLiquido
     ) {
@@ -37,14 +24,13 @@ public class ContaEscrow {
             throw new RegraNegocioException("Valor inicial do escrow deve ser maior que zero.");
         }
 
-        this.id = UUID.randomUUID();
         this.transacaoId = transacaoId;
         this.prestadorId = prestadorId;
         this.saldoRetido = valorLiquido;
         this.statusEscrow = StatusEscrow.ATIVO;
     }
 
-    public static ContaEscrow criar(String transacaoId, String prestadorId, BigDecimal valorLiquido) {
+    public static ContaEscrow criar(UUID transacaoId, String prestadorId, BigDecimal valorLiquido) {
         return new ContaEscrow(transacaoId, prestadorId, valorLiquido);
     }
 

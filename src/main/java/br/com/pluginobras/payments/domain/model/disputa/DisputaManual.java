@@ -10,8 +10,7 @@ import java.util.UUID;
 @Data
 public class DisputaManual {
 
-    private UUID id;
-    private String transacaoId;
+    private UUID transacaoId;
     private BigDecimal valorDevolvidoCliente;
     private String motivo;
     private LocalDateTime dataAbertura;
@@ -19,19 +18,7 @@ public class DisputaManual {
     private StatusDisputa statusDisputa;
 
     public DisputaManual(
-            UUID id,
-            String transacaoId,
-            BigDecimal valorDevolvidoCliente,
-            String motivo
-    ) {
-        this.id = id;
-        this.transacaoId = transacaoId;
-        this.valorDevolvidoCliente = valorDevolvidoCliente;
-        this.motivo = motivo;
-    }
-
-    public DisputaManual(
-            String transacaoId,
+            UUID transacaoId,
             BigDecimal valorDevolvidoCliente,
             String motivo
     ) {
@@ -39,7 +26,6 @@ public class DisputaManual {
             throw new RegraNegocioException("Valor devolvido não pode ser negativo.");
         }
 
-        this.id = UUID.randomUUID();
         this.transacaoId = transacaoId;
         this.valorDevolvidoCliente = valorDevolvidoCliente;
         this.motivo = motivo;

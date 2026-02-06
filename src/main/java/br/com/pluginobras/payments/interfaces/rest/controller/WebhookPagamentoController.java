@@ -48,15 +48,17 @@ public class WebhookPagamentoController {
     @PostMapping
     public ResponseEntity<Void> receberPagamento(@RequestBody WebhookPagamentoRequest request) {
 
-        if(eventoRepository.existsById(request.getIdEvento())) {
+        EventoProcessadoEntity eventoProcessado = new EventoProcessadoEntity(LocalDateTime.now());
+
+        if(eventoRepository.existsById(eventoProcessado.getIdEvento())) {
             return ResponseEntity.ok().build();
         }
 
-        TransacaoEntity entity = transacaoRepository.findByTransacaoId(request.getTransacaoId())
+        TransacaoEntity entity = transacaoRepository.findById(UUID.fromString(request.getTransacaoId()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
 
-        if(escrowRepository.findByTransacaoId(request.getTransacaoId()).isPresent()) {
-            eventoRepository.save(new EventoProcessadoEntity(request.getIdEvento(), LocalDateTime.now()));
+        if(escrowRepository.findByTransacaoId(UUID.fromString(request.getTransacaoId())).isPresent()) {
+            eventoRepository.save(new EventoProcessadoEntity(LocalDateTime.now()));
             return ResponseEntity.ok().build();
         }
 
@@ -69,19 +71,21 @@ public class WebhookPagamentoController {
         }
 
         Pagamento pagamento = new Pagamento(
-                transacao.getTransacaoId(),
+                entity.getId(),
                 request.getMeioPagamento(),
                 resultado.getValorBruto(),
                 resultado.getTaxaGateway()
         );
 
+        entity.updateToDomain(transacao);
+
         ContaEscrow escrow = transacao.registrarPagamento(pagamento);
 
-        pagamentoRepository.save(PagamentoEntity.fromDomain(pagamento));
-        escrowRepository.save(ContaEscrowEntity.fromDomain(escrow));
-        transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
+        pagamentoRepository.save(PagamentoEntity.fromDomain(pagamento, entity));
+        escrowRepository.save(ContaEscrowEntity.fromDomain(escrow, entity));
+        transacaoRepository.save(entity);
 
-        eventoRepository.save(new EventoProcessadoEntity(request.getIdEvento(), LocalDateTime.now()));
+        eventoRepository.save(eventoProcessado);
 
         return ResponseEntity.ok().build();
     }

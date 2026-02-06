@@ -10,14 +10,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DisputaRepository extends JpaRepository<DisputaEntity, UUID> {
-    Optional<DisputaEntity> findByTransacaoId(String transacaoId);
+    Optional<DisputaEntity> findByTransacaoId(UUID transacaoId);
 
     @Query("""
-        select d.prestadorId as prestadorId,
+        select t.prestadorId as prestadorId,
                sum(d.valorDevolvidoCliente) as totalEmDisputa
         from DisputaEntity d
-        where d.status = 'ABERTA'
-        group by d.prestadorId
+        join TransacaoEntity t
+          on t.id = d.transacaoId
+        where d.statusDisputa = 'ABERTA'
+        group by t.prestadorId
     """)
     List<TotalDisputaPorPrestador> totalEmDisputaPorPrestador();
 }

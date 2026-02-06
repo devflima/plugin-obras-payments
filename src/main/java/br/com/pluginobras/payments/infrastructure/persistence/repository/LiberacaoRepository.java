@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface LiberacaoRepository extends JpaRepository<LiberacaoEntity, UUID> {
     @Query("""
         select l.prestadorId as prestadorId,
-               sum(l.valor) as totalLiberado
+               sum(l.valorLiberado) as totalLiberado
         from LiberacaoEntity l
         group by l.prestadorId
     """)

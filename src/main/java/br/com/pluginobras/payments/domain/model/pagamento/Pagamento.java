@@ -11,8 +11,7 @@ import java.util.UUID;
 @Data
 public class Pagamento {
 
-    private UUID id;
-    private String transacaoId;
+    private UUID transacaoId;
 
     private MeioPagamento meioPagamento;
     private BigDecimal valorBruto;
@@ -25,12 +24,11 @@ public class Pagamento {
     protected Pagamento() {}
 
     public Pagamento(
-            String transacaoId,
+            UUID transacaoId,
             MeioPagamento meioPagamento,
             BigDecimal valorBruto,
             BigDecimal taxaGateway
     ) {
-        this.id = UUID.randomUUID();
         this.transacaoId = transacaoId;
         this.meioPagamento = meioPagamento;
         this.valorBruto = valorBruto;
@@ -48,7 +46,8 @@ public class Pagamento {
         if(this.statusPagamento != StatusPagamento.PENDENTE) {
             throw new RegraNegocioException("Pagamento não pode ser confirmado neste estado: " + statusPagamento);
         }
-        this.statusPagamento = StatusPagamento.FALHOU;
+
+        this.statusPagamento = StatusPagamento.CONFIRMADO;
     }
 
     public void falhar() {

@@ -16,7 +16,6 @@ import java.util.UUID;
 public class TransacaoServico {
 
     private UUID id;
-    private String transacaoId;
     private String clienteId;
     private String prestadorId;
 
@@ -34,7 +33,6 @@ public class TransacaoServico {
 
     public TransacaoServico(
             UUID id,
-            String transacaoId,
             String clienteId,
             String prestadorId,
             BigDecimal valorBase,
@@ -42,7 +40,6 @@ public class TransacaoServico {
             BigDecimal taxaPrestador
     ) {
         this.id = id;
-        this.transacaoId = transacaoId;
         this.clienteId = clienteId;
         this.prestadorId = prestadorId;
         this.valorBase = valorBase;
@@ -53,16 +50,12 @@ public class TransacaoServico {
     }
 
     public TransacaoServico(
-            String transacaoId,
             String clienteId,
             String prestadorId,
             BigDecimal valorBase,
             BigDecimal taxaCliente,
             BigDecimal taxaPrestador
     ) {
-        if (transacaoId == null || transacaoId.isBlank()) {
-            throw new RegraNegocioException("Transação deve possuir um identificador válido.");
-        }
 
         if (clienteId == null || clienteId.isBlank()) {
             throw new RegraNegocioException("Cliente deve ser informado.");
@@ -85,7 +78,6 @@ public class TransacaoServico {
         }
 
         this.id = UUID.randomUUID();
-        this.transacaoId = transacaoId;
         this.clienteId = clienteId;
         this.prestadorId = prestadorId;
         this.valorBase = valorBase;
@@ -98,41 +90,21 @@ public class TransacaoServico {
         this.dataCriacao = LocalDateTime.now();
     }
 
-    public void iniciarPagamento() {
-        validarStatus(StatusTransacao.CRIADA);
-        this.statusTransacao = StatusTransacao.AGUARDANDO_PAGAMENTO;
-    }
-
-    public void registrarPagamentoConfirmado() {
-        validarStatus(StatusTransacao.AGUARDANDO_PAGAMENTO);
-        this.statusTransacao = StatusTransacao.PAGA;
-        this.dataPagamento = LocalDateTime.now();
-    }
-
     public void criarEscrow() {
         validarStatus(StatusTransacao.PAGA);
         this.statusTransacao = StatusTransacao.EM_ESCROW;
     }
 
-    public void registrarPagamentoConfirmado(Pagamento pagamento) {
-        validarStatus(StatusTransacao.AGUARDANDO_PAGAMENTO);
-
-        if(pagamento.getStatusPagamento() != StatusPagamento.CONFIRMADO) {
-            throw new RegraNegocioException("Pagamento não está confirmado.");
-        }
-
-        this.statusTransacao = StatusTransacao.PAGA;
-        this.dataPagamento = LocalDateTime.now();
-    }
-
     public ContaEscrow registrarPagamento(Pagamento pagamento) {
         validarStatus(StatusTransacao.CRIADA);
+
+        pagamento.confirmar();
 
         this.statusTransacao = StatusTransacao.EM_ESCROW;
         this.dataPagamento = LocalDateTime.now();
 
         return ContaEscrow.criar(
-                this.transacaoId,
+                this.id,
                 this.prestadorId,
                 pagamento.getValorLiquido()
         );
@@ -144,7 +116,7 @@ public class TransacaoServico {
         this.statusTransacao = StatusTransacao.EM_ESCROW;
 
         return new ContaEscrow(
-                this.transacaoId,
+                this.id,
                 this.prestadorId,
                 this.valorLiquidoPrestador
         );
@@ -161,7 +133,7 @@ public class TransacaoServico {
         this.dataLiberacao = LocalDateTime.now();
 
         return new LiberacaoPrestador(
-                this.transacaoId,
+                this.id,
                 this.prestadorId,
                 valor
         );
@@ -173,7 +145,7 @@ public class TransacaoServico {
         this.statusTransacao = StatusTransacao.EM_DISPUTA;
 
         return new DisputaManual(
-                this.transacaoId,
+                this.id,
                 valorDevolvidoCliente,
                 motivo
         );
@@ -195,7 +167,8 @@ public class TransacaoServico {
         disputaManual.resolver();
 
         if(contaEscrow.getSaldoRetido().compareTo(BigDecimal.ZERO) == 0) {
-            this.statusTransacao = StatusTransacao.CONCLUIDA;
+            this.statusTransacao = StatusTransacao.LIBERADA;
+            this.dataLiberacao = LocalDateTime.now();
         } else {
             this.statusTransacao = StatusTransacao.EM_ESCROW;
         }

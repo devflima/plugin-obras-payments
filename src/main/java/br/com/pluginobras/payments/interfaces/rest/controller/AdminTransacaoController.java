@@ -17,6 +17,7 @@ import br.com.pluginobras.payments.infrastructure.persistence.specification.Tran
 import br.com.pluginobras.payments.interfaces.rest.dto.AbrirDisputaRequest;
 import br.com.pluginobras.payments.interfaces.rest.dto.TransacaoDetalheResponse;
 import br.com.pluginobras.payments.interfaces.rest.dto.TransacaoResumoResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -47,68 +49,68 @@ public class AdminTransacaoController {
     @Autowired
     private DisputaRepository disputaRepository;
 
+    @Transactional
     @PostMapping("/{transacaoId}/liberar")
     public ResponseEntity<Void> liberar(@PathVariable String transacaoId) {
 
-        TransacaoEntity entity = transacaoRepository.findByTransacaoId(transacaoId)
+        TransacaoEntity entity = transacaoRepository.findById(UUID.fromString(transacaoId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
 
         TransacaoServico transacao = entity.toDomain();
 
-        ContaEscrowEntity escrowEntity = escrowRepository.findByTransacaoId(transacaoId)
+        ContaEscrowEntity escrowEntity = escrowRepository.findByTransacaoId(UUID.fromString(transacaoId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Escrow não encontrado"));
 
         ContaEscrow escrow = escrowEntity.toDomain();
 
         LiberacaoPrestador liberacao = transacao.liberarPagamento(escrow);
 
-        escrowRepository.save(ContaEscrowEntity.fromDomain(escrow));
-        liberacaoRepository.save(LiberacaoEntity.fromDomain(liberacao));
-        transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
+        entity.applyStateFromDomain(transacao);
+
+        escrowEntity.applyStateFromDomain(escrow);
+
+        liberacaoRepository.save(LiberacaoEntity.fromDomain(liberacao, entity));
 
         return ResponseEntity.ok().build();
-
     }
 
     @PostMapping("/{transacaoId}/disputa")
     public ResponseEntity<Void> abrirDisputa(@PathVariable String transacaoId, @RequestBody @Valid AbrirDisputaRequest request) {
 
-        TransacaoEntity entity = transacaoRepository.findByTransacaoId(transacaoId)
+        TransacaoEntity entity = transacaoRepository.findById(UUID.fromString(transacaoId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
 
-        TransacaoServico transacao = entity.toDomain();
+        DisputaManual disputa = entity.toDomain().abrirDisputa(request.getValorDevolvidoCliente(), request.getMotivo());
 
-        DisputaManual disputa = transacao.abrirDisputa(request.getValorDevolvidoCliente(), request.getMotivo());
+        entity.setStatusTransacao(StatusTransacao.EM_DISPUTA.name());
 
-        disputaRepository.save(DisputaEntity.fromDomain(disputa));
-        transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
+        disputaRepository.save(DisputaEntity.fromDomain(disputa, entity));
 
         return ResponseEntity.ok().build();
-
     }
 
+    @Transactional
     @PostMapping("/{transacaoId}/disputa/resolver")
     public ResponseEntity<Void> resolverDisputa(@PathVariable String transacaoId) {
 
-        TransacaoEntity entity = transacaoRepository.findByTransacaoId(transacaoId)
+        TransacaoEntity transacaoEntity = transacaoRepository.findById(UUID.fromString(transacaoId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
 
-        TransacaoServico transacao = entity.toDomain();
-
-        DisputaEntity disputaEntity = disputaRepository.findByTransacaoId(transacaoId)
+        DisputaEntity disputaEntity = disputaRepository.findByTransacaoId(UUID.fromString(transacaoId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disputa não encontrada"));
 
-        ContaEscrowEntity escrowEntity = escrowRepository.findByTransacaoId(transacaoId)
+        ContaEscrowEntity escrowEntity = escrowRepository.findByTransacaoId(UUID.fromString(transacaoId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Escrow não encontrado"));
 
+        TransacaoServico transacao = transacaoEntity.toDomain();
         DisputaManual disputa = disputaEntity.toDomain();
         ContaEscrow escrow = escrowEntity.toDomain();
 
         transacao.resolverDisputa(escrow, disputa);
 
-        escrowRepository.save(ContaEscrowEntity.fromDomain(escrow));
-        disputaRepository.save(DisputaEntity.fromDomain(disputa));
-        transacaoRepository.save(TransacaoEntity.fromDomain(transacao));
+        transacaoEntity.setStatusTransacao(transacao.getStatusTransacao().name());
+        escrowEntity.applyStateFromDomain(escrow);
+        disputaEntity.applyStateFromDomain(disputa);
 
         return ResponseEntity.ok().build();
     }
@@ -152,7 +154,7 @@ public class AdminTransacaoController {
 
     @GetMapping("/{transacaoId}")
     public ResponseEntity<TransacaoDetalheResponse> detalhar(@PathVariable String transacaoId) {
-        TransacaoEntity entity = transacaoRepository.findByTransacaoId(transacaoId)
+        TransacaoEntity entity = transacaoRepository.findById(UUID.fromString(transacaoId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transação não encontrada"));
 
         return ResponseEntity.ok(TransacaoDetalheResponse.fromEntity(entity));

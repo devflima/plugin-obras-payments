@@ -1,10 +1,7 @@
 package br.com.pluginobras.payments.infrastructure.persistence.entity;
 
 import br.com.pluginobras.payments.domain.model.pagamento.Pagamento;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,25 +12,27 @@ import java.util.UUID;
 public class PagamentoEntity {
 
     @Id
-    private UUID id;
+    private UUID transacaoId;
 
-    private String transacaoId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "transacao_id")
+    private TransacaoEntity transacao;
+
     private String meioPagamento;
     private BigDecimal valorBruto;
     private BigDecimal taxaGateway;
     private BigDecimal valorLiquido;
-
     private String statusPagamento;
-
     private LocalDateTime dataEvento;
 
     protected PagamentoEntity() {}
 
-    public static PagamentoEntity fromDomain(Pagamento domain) {
+    public static PagamentoEntity fromDomain(Pagamento domain, TransacaoEntity transacaoEntity) {
         PagamentoEntity p = new PagamentoEntity();
 
-        p.id = domain.getId();
-        p.transacaoId = domain.getTransacaoId();
+        p.transacao = transacaoEntity;
+
         p.meioPagamento = domain.getMeioPagamento().name();
         p.valorBruto = domain.getValorBruto();
         p.taxaGateway = domain.getTaxaGateway();

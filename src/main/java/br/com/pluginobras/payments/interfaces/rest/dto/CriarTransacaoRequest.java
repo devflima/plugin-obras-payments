@@ -16,9 +16,6 @@ import java.math.BigDecimal;
 public class CriarTransacaoRequest {
 
     @NotBlank
-    private String transacaoId;
-
-    @NotBlank
     private String clienteId;
 
     @NotBlank

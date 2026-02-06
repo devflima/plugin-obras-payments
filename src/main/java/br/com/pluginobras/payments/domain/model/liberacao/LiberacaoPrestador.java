@@ -10,8 +10,7 @@ import java.util.UUID;
 @Data
 public class LiberacaoPrestador {
 
-    private UUID id;
-    private String transacaoId;
+    private UUID transacaoId;
     private String prestadorId;
     private BigDecimal valorLiberado;
     private LocalDateTime dataLiberacao;
@@ -19,7 +18,7 @@ public class LiberacaoPrestador {
     protected LiberacaoPrestador() {}
 
     public LiberacaoPrestador(
-            String transacaoId,
+            UUID transacaoId,
             String prestadorId,
             BigDecimal valorLiberado
     ) {
@@ -27,7 +26,6 @@ public class LiberacaoPrestador {
             throw new RegraNegocioException("Valor liberado deve ser maior que zero.");
         }
 
-        this.id = UUID.randomUUID();
         this.transacaoId = transacaoId;
         this.prestadorId = prestadorId;
         this.valorLiberado = valorLiberado;

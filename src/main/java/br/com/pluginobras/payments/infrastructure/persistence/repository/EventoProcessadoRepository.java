@@ -4,6 +4,8 @@ import br.com.pluginobras.payments.infrastructure.persistence.entity.EventoProce
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface EventoProcessadoRepository extends JpaRepository<EventoProcessadoEntity, String> {
+public interface EventoProcessadoRepository extends JpaRepository<EventoProcessadoEntity, UUID> {
 }

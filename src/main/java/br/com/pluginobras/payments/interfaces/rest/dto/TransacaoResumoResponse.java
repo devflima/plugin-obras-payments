@@ -8,13 +8,14 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransacaoResumoResponse {
 
-    private String transacaoId;
+    private UUID transacaoId;
     private String clienteId;
     private String prestadorId;
     private StatusTransacao statusTransacao;
@@ -25,7 +26,7 @@ public class TransacaoResumoResponse {
     public static TransacaoResumoResponse fromEntity(TransacaoEntity entity) {
         TransacaoResumoResponse dto = new TransacaoResumoResponse();
 
-        dto.transacaoId = entity.getTransacaoId();
+        dto.transacaoId = entity.getId();
         dto.clienteId = entity.getClienteId();
         dto.prestadorId = entity.getPrestadorId();
         dto.statusTransacao = StatusTransacao.valueOf(entity.getStatusTransacao());

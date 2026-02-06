@@ -1,6 +1,9 @@
-package br.com.pluginobras.payments.infrastructure.gateway.pagamento;
+package br.com.pluginobras.payments.infrastructure.gateway;
 
 import br.com.pluginobras.payments.domain.model.transacao.MeioPagamento;
+import br.com.pluginobras.payments.infrastructure.gateway.pagamento.GatewayPagamentoClient;
+import br.com.pluginobras.payments.infrastructure.gateway.pagamento.GatewayPagamentoMock;
+import br.com.pluginobras.payments.infrastructure.gateway.pagamento.ResultadoPagamento;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

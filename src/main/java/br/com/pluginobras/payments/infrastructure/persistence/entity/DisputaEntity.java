@@ -2,9 +2,7 @@ package br.com.pluginobras.payments.infrastructure.persistence.entity;
 
 import br.com.pluginobras.payments.domain.model.disputa.DisputaManual;
 import br.com.pluginobras.payments.domain.model.disputa.StatusDisputa;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -12,27 +10,33 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "disputa")
+@Table(name = "disputa_manual")
 @Data
 public class DisputaEntity {
 
     @Id
-    private UUID id;
+    private UUID transacaoId;
 
-    private String transacaoId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "transacao_id")
+    private TransacaoEntity transacao;
+
     private BigDecimal valorDevolvidoCliente;
     private String motivo;
     private LocalDateTime dataAbertura;
     private LocalDateTime dataResolucao;
+
+    @Enumerated(EnumType.STRING)
     private StatusDisputa statusDisputa;
 
     protected DisputaEntity() {}
 
-    public static DisputaEntity fromDomain(DisputaManual domain) {
+    public static DisputaEntity fromDomain(DisputaManual domain, TransacaoEntity transacaoEntity) {
         DisputaEntity d = new DisputaEntity();
 
-        d.id = domain.getId();
-        d.transacaoId = domain.getTransacaoId();
+        d.transacao = transacaoEntity;
+
         d.valorDevolvidoCliente = domain.getValorDevolvidoCliente();
         d.motivo = domain.getMotivo();
         d.dataAbertura = domain.getDataAbertura();
@@ -44,7 +48,6 @@ public class DisputaEntity {
 
     public DisputaManual toDomain() {
         DisputaManual d = new DisputaManual(
-                this.id,
                 this.transacaoId,
                 this.valorDevolvidoCliente,
                 this.motivo
@@ -57,6 +60,11 @@ public class DisputaEntity {
         );
 
         return d;
+    }
+
+    public void applyStateFromDomain(DisputaManual domain) {
+        this.statusDisputa = domain.getStatusDisputa();
+        this.dataResolucao = domain.getDataResolucao();
     }
 
 }

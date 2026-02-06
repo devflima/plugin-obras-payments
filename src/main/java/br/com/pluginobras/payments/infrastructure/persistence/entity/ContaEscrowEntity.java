@@ -2,10 +2,7 @@ package br.com.pluginobras.payments.infrastructure.persistence.entity;
 
 import br.com.pluginobras.payments.domain.model.escrow.ContaEscrow;
 import br.com.pluginobras.payments.domain.model.escrow.StatusEscrow;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -15,9 +12,13 @@ import java.util.UUID;
 public class ContaEscrowEntity {
 
     @Id
-    private UUID id;
+    private UUID transacaoId;
 
-    private String transacaoId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "transacao_id")
+    private TransacaoEntity transacao;
+
     private String prestadorId;
 
     private BigDecimal saldoRetido;
@@ -26,11 +27,11 @@ public class ContaEscrowEntity {
 
     protected ContaEscrowEntity() {}
 
-    public static ContaEscrowEntity fromDomain(ContaEscrow domain) {
+    public static ContaEscrowEntity fromDomain(ContaEscrow domain, TransacaoEntity transacaoEntity) {
         ContaEscrowEntity c = new ContaEscrowEntity();
 
-        c.id = domain.getId();
-        c.transacaoId = domain.getTransacaoId();
+        c.transacao = transacaoEntity;
+
         c.prestadorId = domain.getPrestadorId();
         c.saldoRetido = domain.getSaldoRetido();
         c.statusEscrow = domain.getStatusEscrow().name();
@@ -40,7 +41,6 @@ public class ContaEscrowEntity {
 
     public ContaEscrow toDomain() {
         ContaEscrow escrow = new ContaEscrow(
-                this.id,
                 this.transacaoId,
                 this.prestadorId,
                 this.saldoRetido
@@ -49,6 +49,11 @@ public class ContaEscrowEntity {
         escrow.reconstruirEstado(StatusEscrow.valueOf(this.statusEscrow));
 
         return escrow;
+    }
+
+    public void applyStateFromDomain(ContaEscrow domain) {
+        this.saldoRetido = domain.getSaldoRetido();
+        this.statusEscrow = domain.getStatusEscrow().name();
     }
 
 }
